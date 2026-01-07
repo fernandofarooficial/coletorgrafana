@@ -11,6 +11,7 @@ import mysql.connector
 from mysql.connector import Error
 from flask import Flask, render_template
 import threading
+import pytz
 
 app = Flask(__name__)
 
@@ -28,6 +29,14 @@ DB_CONFIG = {
     'connect_timeout': 30,
     'connection_timeout': 30
 }
+
+
+def obter_horario_brasil():
+    """Retorna o horário atual no timezone do Brasil (UTC-3)"""
+    # Timezone do Brasil (São Paulo)
+    tz_brasil = pytz.timezone('America/Sao_Paulo')
+    # Obtém o horário atual UTC e converte para o timezone do Brasil
+    return datetime.now(pytz.utc).astimezone(tz_brasil)
 
 
 def conectar_banco():
@@ -150,7 +159,8 @@ def extrair_dados_selenium():
     """Abre Selenium e extrai dados"""
     driver = None
     try:
-        print(f"[{datetime.now().strftime('%d/%m/%Y %H:%M:%S')}] Iniciando coleta...")
+        horario_brasil = obter_horario_brasil()
+        print(f"[{horario_brasil.strftime('%d/%m/%Y %H:%M:%S')} Brasil] Iniciando coleta...")
         print(f"  URL: {URL}")
 
         options = webdriver.ChromeOptions()
@@ -277,9 +287,13 @@ def salvar_em_banco(dados_dict):
 
         cursor = conexao.cursor()
 
-        # Prepara os dados para uma única linha
-        timestamp = datetime.now()
+        # Prepara os dados para uma única linha com horário do Brasil
+        timestamp_brasil = obter_horario_brasil()
+        # Remove timezone info para compatibilidade com MySQL
+        timestamp = timestamp_brasil.replace(tzinfo=None)
         dados_linha = {'quando': timestamp}
+
+        print(f"  Horário da coleta (Brasil): {timestamp_brasil.strftime('%d/%m/%Y %H:%M:%S')}")
 
         # Processa cada Prompt (Prompt 1, Prompt 2, Prompt 3)
         for prompt_num in range(1, 4):
@@ -379,11 +393,14 @@ def status():
         if conexao:
             conexao.close()
 
+        horario_brasil = obter_horario_brasil()
         return {
             "status": "online",
             "database": db_status,
             "thread_coleta": "ativa" if thread_coleta.is_alive() else "inativa",
-            "timestamp": datetime.now().isoformat()
+            "timestamp_utc": datetime.now().isoformat(),
+            "timestamp_brasil": horario_brasil.isoformat(),
+            "timezone": "America/Sao_Paulo (UTC-3)"
         }
     except Exception as e:
         return {"status": "erro", "mensagem": str(e)}, 500

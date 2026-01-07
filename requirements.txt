@@ -3,3 +3,4 @@ selenium==4.16.0
 mysql-connector-python==8.2.0
 gunicorn==21.2.0
 Werkzeug==3.0.1
+pytz==2023.3
