@@ -4,7 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="3d79be0b-5301-49f8-94e9-a9baadc38484" name="Changes" comment="Exibir horario da ultima atualização da tela" />
+    <list default="true" id="3d79be0b-5301-49f8-94e9-a9baadc38484" name="Changes" comment="Botão para planilha excel" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -89,13 +89,22 @@
       <option name="project" value="LOCAL" />
       <updated>1767822115734</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="Botão para planilha excel">
+      <option name="closed" value="true" />
+      <created>1767829687561</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1767829687561</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Alteração numero 1" />
     <MESSAGE value="Ajuste no horário da coleta para usar a zona de tempo de São Paulo" />
     <MESSAGE value="Exibir horario da ultima atualização da tela" />
-    <option name="LAST_COMMIT_MESSAGE" value="Exibir horario da ultima atualização da tela" />
+    <MESSAGE value="Botão para planilha excel" />
+    <option name="LAST_COMMIT_MESSAGE" value="Botão para planilha excel" />
   </component>
 </project>
