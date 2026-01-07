@@ -4,9 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="3d79be0b-5301-49f8-94e9-a9baadc38484" name="Changes" comment="Ajuste no horário da coleta para usar a zona de tempo de São Paulo">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-    </list>
+    <list default="true" id="3d79be0b-5301-49f8-94e9-a9baadc38484" name="Changes" comment="Exibir horario da ultima atualização da tela" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -83,12 +81,21 @@
       <option name="project" value="LOCAL" />
       <updated>1767805204714</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="Exibir horario da ultima atualização da tela">
+      <option name="closed" value="true" />
+      <created>1767822115734</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1767822115734</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Alteração numero 1" />
     <MESSAGE value="Ajuste no horário da coleta para usar a zona de tempo de São Paulo" />
-    <option name="LAST_COMMIT_MESSAGE" value="Ajuste no horário da coleta para usar a zona de tempo de São Paulo" />
+    <MESSAGE value="Exibir horario da ultima atualização da tela" />
+    <option name="LAST_COMMIT_MESSAGE" value="Exibir horario da ultima atualização da tela" />
   </component>
 </project>

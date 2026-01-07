@@ -9,9 +9,12 @@ import os
 import re
 import mysql.connector
 from mysql.connector import Error
-from flask import Flask, render_template
+from flask import Flask, render_template, request, send_file
 import threading
 import pytz
+from openpyxl import Workbook
+from openpyxl.styles import Font, PatternFill, Alignment
+from io import BytesIO
 
 app = Flask(__name__)
 
@@ -405,6 +408,99 @@ def status():
         }
     except Exception as e:
         return {"status": "erro", "mensagem": str(e)}, 500
+
+
+@app.route('/exportar_excel')
+def exportar_excel():
+    """Exporta dados para Excel com três abas (uma para cada servidor)"""
+    try:
+        # Obtém quantidade de registros (default 50)
+        quantidade = request.args.get('quantidade', 50, type=int)
+
+        # Busca os dados
+        dados = buscar_ultimas_linhas(quantidade)
+
+        if not dados:
+            return "Nenhum dado disponível para exportar", 404
+
+        # Cria o workbook
+        wb = Workbook()
+        wb.remove(wb.active)  # Remove a planilha padrão
+
+        # Estilo para cabeçalho
+        header_fill = PatternFill(start_color="667EEA", end_color="667EEA", fill_type="solid")
+        header_font = Font(bold=True, color="FFFFFF")
+        header_alignment = Alignment(horizontal="center", vertical="center")
+
+        # Estilo para células
+        cell_alignment = Alignment(horizontal="center", vertical="center")
+
+        # Define os cabeçalhos
+        cabecalhos = ['Data/Hora', 'CPU (%)', 'RAM (%)', 'HD (%)', 'GPU (%)', 'SWAP (%)',
+                      'Total Câm', 'Câm On', 'Câm Off', 'Câm Idle']
+
+        # Cria três abas (uma para cada servidor)
+        for prompt_num in range(1, 4):
+            # Cria a aba
+            ws = wb.create_sheet(title=f"Prompt {prompt_num}")
+
+            # Adiciona os cabeçalhos
+            ws.append(cabecalhos)
+
+            # Estiliza o cabeçalho
+            for col_num, _ in enumerate(cabecalhos, 1):
+                cell = ws.cell(row=1, column=col_num)
+                cell.fill = header_fill
+                cell.font = header_font
+                cell.alignment = header_alignment
+
+            # Adiciona os dados
+            for linha in dados:
+                row_data = [
+                    linha['quando'].strftime('%d/%m/%Y %H:%M:%S') if linha['quando'] else 'N/A',
+                    round(linha[f'p{prompt_num}_cpu'], 1) if linha[f'p{prompt_num}_cpu'] is not None else '-',
+                    round(linha[f'p{prompt_num}_ram'], 1) if linha[f'p{prompt_num}_ram'] is not None else '-',
+                    round(linha[f'p{prompt_num}_hd'], 1) if linha[f'p{prompt_num}_hd'] is not None else '-',
+                    round(linha[f'p{prompt_num}_gpu'], 1) if linha[f'p{prompt_num}_gpu'] is not None else '-',
+                    round(linha[f'p{prompt_num}_swap'], 1) if linha[f'p{prompt_num}_swap'] is not None else '-',
+                    linha[f'p{prompt_num}_total_cam'] if linha[f'p{prompt_num}_total_cam'] is not None else '-',
+                    linha[f'p{prompt_num}_cam_on'] if linha[f'p{prompt_num}_cam_on'] is not None else '-',
+                    linha[f'p{prompt_num}_cam_off'] if linha[f'p{prompt_num}_cam_off'] is not None else '-',
+                    linha[f'p{prompt_num}_cam_idle'] if linha[f'p{prompt_num}_cam_idle'] is not None else '-',
+                ]
+                ws.append(row_data)
+
+            # Ajusta largura das colunas
+            ws.column_dimensions['A'].width = 20  # Data/Hora
+            for col in ['B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J']:
+                ws.column_dimensions[col].width = 12
+
+            # Centraliza todas as células de dados
+            for row in ws.iter_rows(min_row=2, max_row=ws.max_row, min_col=1, max_col=len(cabecalhos)):
+                for cell in row:
+                    cell.alignment = cell_alignment
+
+        # Salva o arquivo em memória
+        output = BytesIO()
+        wb.save(output)
+        output.seek(0)
+
+        # Nome do arquivo com timestamp
+        horario_brasil = obter_horario_brasil()
+        filename = f"grafana_export_{horario_brasil.strftime('%Y%m%d_%H%M%S')}.xlsx"
+
+        return send_file(
+            output,
+            mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            as_attachment=True,
+            download_name=filename
+        )
+
+    except Exception as e:
+        print(f"Erro ao exportar Excel: {e}")
+        import traceback
+        traceback.print_exc()
+        return f"Erro ao gerar planilha: {str(e)}", 500
 
 
 def coletar_dados_periodicamente():

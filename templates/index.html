@@ -184,6 +184,55 @@
             background: #00c851;
             color: white;
         }
+
+        .export-section {
+            background: #f8f9fa;
+            padding: 20px 30px;
+            border-bottom: 2px solid #e9ecef;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .export-section label {
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .export-section input[type="number"] {
+            padding: 8px 12px;
+            border: 2px solid #dee2e6;
+            border-radius: 6px;
+            font-size: 1em;
+            width: 100px;
+            text-align: center;
+        }
+
+        .export-section input[type="number"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn-export {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 10px 25px;
+            border: none;
+            border-radius: 6px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .btn-export:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-export:active {
+            transform: translateY(0);
+        }
     </style>
 </head>
 <body>
@@ -197,6 +246,13 @@
             <span>Últimas 50 coletas</span>
             <span>Última atualização: {{ horario_atualizacao.strftime('%d/%m/%Y %H:%M:%S') if horario_atualizacao else 'N/A' }}</span>
             <span>Atualização automática a cada 60 segundos</span>
+        </div>
+
+        <div class="export-section">
+            <label for="quantidade">Exportar para Excel:</label>
+            <input type="number" id="quantidade" name="quantidade" value="50" min="1" max="10000">
+            <span>coletas</span>
+            <button class="btn-export" onclick="exportarExcel()">Baixar Excel</button>
         </div>
 
         <div class="content">
@@ -329,5 +385,16 @@
             <p>Sistema de Monitoramento Grafana &copy; 2026 | Atualizado automaticamente</p>
         </footer>
     </div>
+
+    <script>
+        function exportarExcel() {
+            const quantidade = document.getElementById('quantidade').value;
+            if (quantidade < 1) {
+                alert('Por favor, insira uma quantidade válida (mínimo 1)');
+                return;
+            }
+            window.location.href = `/exportar_excel?quantidade=${quantidade}`;
+        }
+    </script>
 </body>
 </html>
