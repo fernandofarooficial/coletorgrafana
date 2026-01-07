@@ -148,8 +148,10 @@ def extrair_dados_com_scroll_profundo(driver):
 
 def extrair_dados_selenium():
     """Abre Selenium e extrai dados"""
+    driver = None
     try:
         print(f"[{datetime.now().strftime('%d/%m/%Y %H:%M:%S')}] Iniciando coleta...")
+        print(f"  URL: {URL}")
 
         options = webdriver.ChromeOptions()
         options.add_argument("--headless")
@@ -161,23 +163,37 @@ def extrair_dados_selenium():
         options.add_argument("--disable-blink-features=AutomationControlled")
         options.add_argument("--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")
 
+        print("  Inicializando Chrome...")
         driver = webdriver.Chrome(options=options)
-        driver.get(URL)
+        print("  Chrome inicializado com sucesso")
 
-        print("  Aguardando carregamento...")
+        print(f"  Acessando URL: {URL}")
+        driver.get(URL)
+        print("  URL acessada com sucesso")
+
+        print("  Aguardando carregamento da página...")
         WebDriverWait(driver, 15).until(
             EC.presence_of_all_elements_located((By.TAG_NAME, "span"))
         )
+        print("  Página carregada")
 
         dados = extrair_dados_com_scroll_profundo(driver)
         driver.quit()
+        print("  Chrome fechado")
 
         return dados
 
     except Exception as e:
-        print(f"  Erro no Selenium: {e}")
+        print(f"  ❌ ERRO no Selenium: {e}")
+        print(f"  Tipo do erro: {type(e).__name__}")
+        import traceback
+        print("  Stack trace completo:")
+        traceback.print_exc()
+
         try:
-            driver.quit()
+            if driver:
+                driver.quit()
+                print("  Chrome fechado após erro")
         except:
             pass
         return None
@@ -354,6 +370,25 @@ def index():
     return render_template('index.html', dados=dados)
 
 
+@app.route('/status')
+def status():
+    """Rota de status para verificar se a aplicação está funcionando"""
+    try:
+        conexao = conectar_banco()
+        db_status = "conectado" if conexao else "desconectado"
+        if conexao:
+            conexao.close()
+
+        return {
+            "status": "online",
+            "database": db_status,
+            "thread_coleta": "ativa" if thread_coleta.is_alive() else "inativa",
+            "timestamp": datetime.now().isoformat()
+        }
+    except Exception as e:
+        return {"status": "erro", "mensagem": str(e)}, 500
+
+
 def coletar_dados_periodicamente():
     """Função que roda em background coletando dados a cada 10 minutos"""
     print("=" * 70)
@@ -373,11 +408,14 @@ def coletar_dados_periodicamente():
         time.sleep(600)  # 10 minutos
 
 
-if __name__ == "__main__":
-    # Inicia a thread de coleta em background
-    thread_coleta = threading.Thread(target=coletar_dados_periodicamente, daemon=True)
-    thread_coleta.start()
+# Inicia a thread de coleta automaticamente quando o módulo é carregado
+# Isso garante que funcione tanto com execução direta quanto com Gunicorn
+thread_coleta = threading.Thread(target=coletar_dados_periodicamente, daemon=True)
+thread_coleta.start()
+print("[INFO] Thread de coleta iniciada em background")
 
-    # Inicia o servidor Flask
+
+if __name__ == "__main__":
+    # Quando executado diretamente (não com Gunicorn)
     port = int(os.environ.get('PORT', 5000))
     app.run(host='0.0.0.0', port=port, debug=False)
