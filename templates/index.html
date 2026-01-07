@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monitor Grafana - Últimas 50 Coletas</title>
+    <meta http-equiv="refresh" content="60">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .info-bar {
+            background: #f8f9fa;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .info-bar span {
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .prompt-section {
+            margin-bottom: 40px;
+        }
+
+        .prompt-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px 10px 0 0;
+            font-size: 1.4em;
+            font-weight: bold;
+            margin-bottom: 0;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+            border: 2px solid #667eea;
+            border-radius: 0 0 10px 10px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+
+        th {
+            background: #f8f9fa;
+            color: #495057;
+            font-weight: 600;
+            padding: 12px;
+            text-align: center;
+            border-bottom: 2px solid #dee2e6;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        td {
+            padding: 12px;
+            text-align: center;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        tr:hover {
+            background: #f8f9fa;
+        }
+
+        .valor-cpu {
+            font-weight: 600;
+            color: #e74c3c;
+        }
+
+        .valor-ram {
+            font-weight: 600;
+            color: #3498db;
+        }
+
+        .valor-gpu {
+            font-weight: 600;
+            color: #9b59b6;
+        }
+
+        .valor-hd {
+            font-weight: 600;
+            color: #f39c12;
+        }
+
+        .valor-swap {
+            font-weight: 600;
+            color: #1abc9c;
+        }
+
+        .valor-cam {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .data-hora {
+            font-weight: 600;
+            color: #667eea;
+            font-size: 0.95em;
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 50px;
+            color: #6c757d;
+            font-size: 1.2em;
+        }
+
+        footer {
+            background: #f8f9fa;
+            padding: 20px;
+            text-align: center;
+            color: #6c757d;
+            border-top: 2px solid #e9ecef;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+
+        .badge-high {
+            background: #ff4444;
+            color: white;
+        }
+
+        .badge-medium {
+            background: #ffbb33;
+            color: white;
+        }
+
+        .badge-low {
+            background: #00c851;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Monitor Grafana</h1>
+            <p>Monitoramento em Tempo Real - Coleta a cada 10 minutos</p>
+        </header>
+
+        <div class="info-bar">
+            <span>Últimas 50 coletas</span>
+            <span>Atualização automática a cada 60 segundos</span>
+        </div>
+
+        <div class="content">
+            {% if dados %}
+                <!-- PROMPT 1 -->
+                <div class="prompt-section">
+                    <div class="prompt-header">PROMPT 1</div>
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Data/Hora</th>
+                                    <th>CPU (%)</th>
+                                    <th>RAM (%)</th>
+                                    <th>HD (%)</th>
+                                    <th>GPU (%)</th>
+                                    <th>SWAP (%)</th>
+                                    <th>Total Câm</th>
+                                    <th>Câm On</th>
+                                    <th>Câm Off</th>
+                                    <th>Câm Idle</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for linha in dados %}
+                                <tr>
+                                    <td class="data-hora">{{ linha.quando.strftime('%d/%m/%Y %H:%M:%S') if linha.quando else 'N/A' }}</td>
+                                    <td class="valor-cpu">{{ "%.1f"|format(linha.p1_cpu) if linha.p1_cpu is not none else '-' }}</td>
+                                    <td class="valor-ram">{{ "%.1f"|format(linha.p1_ram) if linha.p1_ram is not none else '-' }}</td>
+                                    <td class="valor-hd">{{ "%.1f"|format(linha.p1_hd) if linha.p1_hd is not none else '-' }}</td>
+                                    <td class="valor-gpu">{{ "%.1f"|format(linha.p1_gpu) if linha.p1_gpu is not none else '-' }}</td>
+                                    <td class="valor-swap">{{ "%.1f"|format(linha.p1_swap) if linha.p1_swap is not none else '-' }}</td>
+                                    <td class="valor-cam">{{ linha.p1_total_cam if linha.p1_total_cam is not none else '-' }}</td>
+                                    <td class="valor-cam">{{ linha.p1_cam_on if linha.p1_cam_on is not none else '-' }}</td>
+                                    <td class="valor-cam">{{ linha.p1_cam_off if linha.p1_cam_off is not none else '-' }}</td>
+                                    <td class="valor-cam">{{ linha.p1_cam_idle if linha.p1_cam_idle is not none else '-' }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- PROMPT 2 -->
+                <div class="prompt-section">
+                    <div class="prompt-header">PROMPT 2</div>
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Data/Hora</th>
+                                    <th>CPU (%)</th>
+                                    <th>RAM (%)</th>
+                                    <th>HD (%)</th>
+                                    <th>GPU (%)</th>
+                                    <th>SWAP (%)</th>
+                                    <th>Total Câm</th>
+                                    <th>Câm On</th>
+                                    <th>Câm Off</th>
+                                    <th>Câm Idle</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for linha in dados %}
+                                <tr>
+                                    <td class="data-hora">{{ linha.quando.strftime('%d/%m/%Y %H:%M:%S') if linha.quando else 'N/A' }}</td>
+                                    <td class="valor-cpu">{{ "%.1f"|format(linha.p2_cpu) if linha.p2_cpu is not none else '-' }}</td>
+                                    <td class="valor-ram">{{ "%.1f"|format(linha.p2_ram) if linha.p2_ram is not none else '-' }}</td>
+                                    <td class="valor-hd">{{ "%.1f"|format(linha.p2_hd) if linha.p2_hd is not none else '-' }}</td>
+                                    <td class="valor-gpu">{{ "%.1f"|format(linha.p2_gpu) if linha.p2_gpu is not none else '-' }}</td>
+                                    <td class="valor-swap">{{ "%.1f"|format(linha.p2_swap) if linha.p2_swap is not none else '-' }}</td>
+                                    <td class="valor-cam">{{ linha.p2_total_cam if linha.p2_total_cam is not none else '-' }}</td>
+                                    <td class="valor-cam">{{ linha.p2_cam_on if linha.p2_cam_on is not none else '-' }}</td>
+                                    <td class="valor-cam">{{ linha.p2_cam_off if linha.p2_cam_off is not none else '-' }}</td>
+                                    <td class="valor-cam">{{ linha.p2_cam_idle if linha.p2_cam_idle is not none else '-' }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- PROMPT 3 -->
+                <div class="prompt-section">
+                    <div class="prompt-header">PROMPT 3</div>
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Data/Hora</th>
+                                    <th>CPU (%)</th>
+                                    <th>RAM (%)</th>
+                                    <th>HD (%)</th>
+                                    <th>GPU (%)</th>
+                                    <th>SWAP (%)</th>
+                                    <th>Total Câm</th>
+                                    <th>Câm On</th>
+                                    <th>Câm Off</th>
+                                    <th>Câm Idle</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for linha in dados %}
+                                <tr>
+                                    <td class="data-hora">{{ linha.quando.strftime('%d/%m/%Y %H:%M:%S') if linha.quando else 'N/A' }}</td>
+                                    <td class="valor-cpu">{{ "%.1f"|format(linha.p3_cpu) if linha.p3_cpu is not none else '-' }}</td>
+                                    <td class="valor-ram">{{ "%.1f"|format(linha.p3_ram) if linha.p3_ram is not none else '-' }}</td>
+                                    <td class="valor-hd">{{ "%.1f"|format(linha.p3_hd) if linha.p3_hd is not none else '-' }}</td>
+                                    <td class="valor-gpu">{{ "%.1f"|format(linha.p3_gpu) if linha.p3_gpu is not none else '-' }}</td>
+                                    <td class="valor-swap">{{ "%.1f"|format(linha.p3_swap) if linha.p3_swap is not none else '-' }}</td>
+                                    <td class="valor-cam">{{ linha.p3_total_cam if linha.p3_total_cam is not none else '-' }}</td>
+                                    <td class="valor-cam">{{ linha.p3_cam_on if linha.p3_cam_on is not none else '-' }}</td>
+                                    <td class="valor-cam">{{ linha.p3_cam_off if linha.p3_cam_off is not none else '-' }}</td>
+                                    <td class="valor-cam">{{ linha.p3_cam_idle if linha.p3_cam_idle is not none else '-' }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            {% else %}
+                <div class="no-data">
+                    <p>Nenhum dado disponível no momento.</p>
+                    <p>Aguardando primeira coleta...</p>
+                </div>
+            {% endif %}
+        </div>
+
+        <footer>
+            <p>Sistema de Monitoramento Grafana &copy; 2026 | Atualizado automaticamente</p>
+        </footer>
+    </div>
+</body>
+</html>

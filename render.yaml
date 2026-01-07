@@ -1,0 +1,28 @@
+services:
+  - type: web
+    name: coletor-grafana
+    env: python
+    buildCommand: |
+      pip install -r requirements.txt
+      apt-get update
+      apt-get install -y wget unzip
+      wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add -
+      sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list'
+      apt-get update
+      apt-get install -y google-chrome-stable
+    startCommand: python app.py
+    envVars:
+      - key: PORT
+        value: 10000
+      - key: DB_USER
+        value: fefa_dev
+      - key: DB_PASSWORD
+        value: Fd7493dt
+      - key: DB_HOST
+        value: 72.60.58.241
+      - key: DB_PORT
+        value: 3306
+      - key: DB_NAME
+        value: bufunfa
+      - key: DB_TIMEZONE
+        value: -03:00
