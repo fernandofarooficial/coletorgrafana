@@ -195,6 +195,7 @@
 
         <div class="info-bar">
             <span>Últimas 50 coletas</span>
+            <span>Última atualização: {{ horario_atualizacao.strftime('%d/%m/%Y %H:%M:%S') if horario_atualizacao else 'N/A' }}</span>
             <span>Atualização automática a cada 60 segundos</span>
         </div>
 

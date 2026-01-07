@@ -381,7 +381,8 @@ def buscar_ultimas_linhas(limite=50):
 def index():
     """Página principal que exibe os dados"""
     dados = buscar_ultimas_linhas(50)
-    return render_template('index.html', dados=dados)
+    horario_atualizacao = obter_horario_brasil()
+    return render_template('index.html', dados=dados, horario_atualizacao=horario_atualizacao)
 
 
 @app.route('/status')
