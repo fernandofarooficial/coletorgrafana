@@ -360,9 +360,9 @@ def buscar_ultimas_linhas(limite=50):
         # Campos que serão exibidos
         campos = [
             'quando',
-            'p1_cpu', 'p1_ram', 'p1_hd', 'p1_gpu', 'p1_swap', 'p1_total_cam', 'p1_cam_on', 'p1_cam_off', 'p1_cam_idle',
-            'p2_cpu', 'p2_ram', 'p2_hd', 'p2_gpu', 'p2_swap', 'p2_total_cam', 'p2_cam_on', 'p2_cam_off', 'p2_cam_idle',
-            'p3_cpu', 'p3_ram', 'p3_hd', 'p3_gpu', 'p3_swap', 'p3_total_cam', 'p3_cam_on', 'p3_cam_off', 'p3_cam_idle'
+            'p1_cpu', 'p1_ram', 'p1_hd', 'p1_gpu', 'p1_swap', 'p1_infer_time', 'p1_gpu_temp', 'p1_total_cam', 'p1_cam_on', 'p1_cam_off', 'p1_cam_idle',
+            'p2_cpu', 'p2_ram', 'p2_hd', 'p2_gpu', 'p2_swap', 'p2_infer_time', 'p2_gpu_temp', 'p2_total_cam', 'p2_cam_on', 'p2_cam_off', 'p2_cam_idle',
+            'p3_cpu', 'p3_ram', 'p3_hd', 'p3_gpu', 'p3_swap', 'p3_infer_time', 'p3_gpu_temp', 'p3_total_cam', 'p3_cam_on', 'p3_cam_off', 'p3_cam_idle'
         ]
 
         sql = f"SELECT {', '.join(campos)} FROM grafana ORDER BY quando DESC LIMIT %s"
@@ -437,7 +437,7 @@ def exportar_excel():
 
         # Define os cabeçalhos
         cabecalhos = ['Data/Hora', 'CPU (%)', 'RAM (%)', 'HD (%)', 'GPU (%)', 'SWAP (%)',
-                      'Total Câm', 'Câm On', 'Câm Off', 'Câm Idle']
+                      'Infer Time', 'GPU Temp', 'Total Câm', 'Câm On', 'Câm Off', 'Câm Idle']
 
         # Cria três abas (uma para cada servidor)
         for prompt_num in range(1, 4):
@@ -463,6 +463,8 @@ def exportar_excel():
                     round(linha[f'p{prompt_num}_hd'], 1) if linha[f'p{prompt_num}_hd'] is not None else '-',
                     round(linha[f'p{prompt_num}_gpu'], 1) if linha[f'p{prompt_num}_gpu'] is not None else '-',
                     round(linha[f'p{prompt_num}_swap'], 1) if linha[f'p{prompt_num}_swap'] is not None else '-',
+                    round(linha[f'p{prompt_num}_infer_time'], 2) if linha[f'p{prompt_num}_infer_time'] is not None else '-',
+                    round(linha[f'p{prompt_num}_gpu_temp'], 1) if linha[f'p{prompt_num}_gpu_temp'] is not None else '-',
                     linha[f'p{prompt_num}_total_cam'] if linha[f'p{prompt_num}_total_cam'] is not None else '-',
                     linha[f'p{prompt_num}_cam_on'] if linha[f'p{prompt_num}_cam_on'] is not None else '-',
                     linha[f'p{prompt_num}_cam_off'] if linha[f'p{prompt_num}_cam_off'] is not None else '-',
@@ -472,7 +474,7 @@ def exportar_excel():
 
             # Ajusta largura das colunas
             ws.column_dimensions['A'].width = 20  # Data/Hora
-            for col in ['B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J']:
+            for col in ['B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L']:
                 ws.column_dimensions[col].width = 12
 
             # Centraliza todas as células de dados

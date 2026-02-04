@@ -141,6 +141,16 @@
             color: #2c3e50;
         }
 
+        .valor-infer {
+            font-weight: 600;
+            color: #e67e22;
+        }
+
+        .valor-temp {
+            font-weight: 600;
+            color: #c0392b;
+        }
+
         .data-hora {
             font-weight: 600;
             color: #667eea;
@@ -270,6 +280,8 @@
                                     <th>HD (%)</th>
                                     <th>GPU (%)</th>
                                     <th>SWAP (%)</th>
+                                    <th>Infer Time</th>
+                                    <th>GPU Temp</th>
                                     <th>Total Câm</th>
                                     <th>Câm On</th>
                                     <th>Câm Off</th>
@@ -285,6 +297,8 @@
                                     <td class="valor-hd">{{ "%.1f"|format(linha.p1_hd) if linha.p1_hd is not none else '-' }}</td>
                                     <td class="valor-gpu">{{ "%.1f"|format(linha.p1_gpu) if linha.p1_gpu is not none else '-' }}</td>
                                     <td class="valor-swap">{{ "%.1f"|format(linha.p1_swap) if linha.p1_swap is not none else '-' }}</td>
+                                    <td class="valor-infer">{{ "%.2f"|format(linha.p1_infer_time) if linha.p1_infer_time is not none else '-' }}</td>
+                                    <td class="valor-temp">{{ "%.1f"|format(linha.p1_gpu_temp) if linha.p1_gpu_temp is not none else '-' }}</td>
                                     <td class="valor-cam">{{ linha.p1_total_cam if linha.p1_total_cam is not none else '-' }}</td>
                                     <td class="valor-cam">{{ linha.p1_cam_on if linha.p1_cam_on is not none else '-' }}</td>
                                     <td class="valor-cam">{{ linha.p1_cam_off if linha.p1_cam_off is not none else '-' }}</td>
@@ -309,6 +323,8 @@
                                     <th>HD (%)</th>
                                     <th>GPU (%)</th>
                                     <th>SWAP (%)</th>
+                                    <th>Infer Time</th>
+                                    <th>GPU Temp</th>
                                     <th>Total Câm</th>
                                     <th>Câm On</th>
                                     <th>Câm Off</th>
@@ -324,6 +340,8 @@
                                     <td class="valor-hd">{{ "%.1f"|format(linha.p2_hd) if linha.p2_hd is not none else '-' }}</td>
                                     <td class="valor-gpu">{{ "%.1f"|format(linha.p2_gpu) if linha.p2_gpu is not none else '-' }}</td>
                                     <td class="valor-swap">{{ "%.1f"|format(linha.p2_swap) if linha.p2_swap is not none else '-' }}</td>
+                                    <td class="valor-infer">{{ "%.2f"|format(linha.p2_infer_time) if linha.p2_infer_time is not none else '-' }}</td>
+                                    <td class="valor-temp">{{ "%.1f"|format(linha.p2_gpu_temp) if linha.p2_gpu_temp is not none else '-' }}</td>
                                     <td class="valor-cam">{{ linha.p2_total_cam if linha.p2_total_cam is not none else '-' }}</td>
                                     <td class="valor-cam">{{ linha.p2_cam_on if linha.p2_cam_on is not none else '-' }}</td>
                                     <td class="valor-cam">{{ linha.p2_cam_off if linha.p2_cam_off is not none else '-' }}</td>
@@ -348,6 +366,8 @@
                                     <th>HD (%)</th>
                                     <th>GPU (%)</th>
                                     <th>SWAP (%)</th>
+                                    <th>Infer Time</th>
+                                    <th>GPU Temp</th>
                                     <th>Total Câm</th>
                                     <th>Câm On</th>
                                     <th>Câm Off</th>
@@ -363,6 +383,8 @@
                                     <td class="valor-hd">{{ "%.1f"|format(linha.p3_hd) if linha.p3_hd is not none else '-' }}</td>
                                     <td class="valor-gpu">{{ "%.1f"|format(linha.p3_gpu) if linha.p3_gpu is not none else '-' }}</td>
                                     <td class="valor-swap">{{ "%.1f"|format(linha.p3_swap) if linha.p3_swap is not none else '-' }}</td>
+                                    <td class="valor-infer">{{ "%.2f"|format(linha.p3_infer_time) if linha.p3_infer_time is not none else '-' }}</td>
+                                    <td class="valor-temp">{{ "%.1f"|format(linha.p3_gpu_temp) if linha.p3_gpu_temp is not none else '-' }}</td>
                                     <td class="valor-cam">{{ linha.p3_total_cam if linha.p3_total_cam is not none else '-' }}</td>
                                     <td class="valor-cam">{{ linha.p3_cam_on if linha.p3_cam_on is not none else '-' }}</td>
                                     <td class="valor-cam">{{ linha.p3_cam_off if linha.p3_cam_off is not none else '-' }}</td>
