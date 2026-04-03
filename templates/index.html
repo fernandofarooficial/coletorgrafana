@@ -415,7 +415,7 @@
                 alert('Por favor, insira uma quantidade válida (mínimo 1)');
                 return;
             }
-            window.location.href = `/exportar_excel?quantidade=${quantidade}`;
+            window.location.href = `{{ url_for('exportar_excel') }}?quantidade=${quantidade}`;
         }
     </script>
 </body>

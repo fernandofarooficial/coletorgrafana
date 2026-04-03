@@ -18,6 +18,17 @@ from io import BytesIO
 
 app = Flask(__name__)
 
+# Suporte a prefixo de rota quando rodando atrás de proxy reverso (ex: /coletorgrafana/)
+_APPLICATION_ROOT = os.environ.get('APPLICATION_ROOT', '').rstrip('/')
+if _APPLICATION_ROOT:
+    _orig_wsgi = app.wsgi_app
+
+    def _prefix_middleware(environ, start_response):
+        environ['SCRIPT_NAME'] = _APPLICATION_ROOT
+        return _orig_wsgi(environ, start_response)
+
+    app.wsgi_app = _prefix_middleware
+
 URL = "https://zions.grafana.net/public-dashboards/f8bfe8e54a494de9b59218743d70381c"
 CSV_FILE = "dados_grafana.csv"
 
