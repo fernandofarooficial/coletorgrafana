@@ -9,7 +9,7 @@ import os
 import re
 import mysql.connector
 from mysql.connector import Error
-from flask import Flask, render_template, request, send_file
+from flask import Flask, render_template, request, send_file, make_response
 import threading
 import pytz
 from openpyxl import Workbook
@@ -178,11 +178,11 @@ def extrair_dados_selenium():
         print(f"  URL: {URL}")
 
         options = webdriver.ChromeOptions()
-        options.add_argument("--headless")
+        options.add_argument("--headless=new")
         options.add_argument("--no-sandbox")
         options.add_argument("--disable-dev-shm-usage")
         options.add_argument("--disable-gpu")
-        options.add_argument("--disable-software-rasterizer")
+        options.add_argument("--no-zygote")
         options.add_argument("--window-size=1920,1200")
         options.add_argument("--disable-blink-features=AutomationControlled")
         options.add_argument("--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")
@@ -496,18 +496,17 @@ def exportar_excel():
         # Salva o arquivo em memória
         output = BytesIO()
         wb.save(output)
-        output.seek(0)
+        data = output.getvalue()
 
         # Nome do arquivo com timestamp
         horario_brasil = obter_horario_brasil()
         filename = f"grafana_export_{horario_brasil.strftime('%Y%m%d_%H%M%S')}.xlsx"
 
-        return send_file(
-            output,
-            mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-            as_attachment=True,
-            download_name=filename
-        )
+        response = make_response(data)
+        response.headers['Content-Type'] = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        response.headers['Content-Disposition'] = f'attachment; filename="{filename}"'
+        response.headers['Content-Length'] = len(data)
+        return response
 
     except Exception as e:
         print(f"Erro ao exportar Excel: {e}")
