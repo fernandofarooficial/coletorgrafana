@@ -4,7 +4,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.service import Service
-from datetime import datetime
+from datetime import datetime, timedelta
 import csv
 import os
 import re
@@ -301,6 +301,8 @@ def salvar_em_banco(dados_dict):
         'Total Câmeras': 'total_cam'
     }
 
+    conexao = None
+    cursor = None
     try:
         conexao = conectar_banco()
         if not conexao:
@@ -309,56 +311,80 @@ def salvar_em_banco(dados_dict):
 
         cursor = conexao.cursor()
 
-        # Prepara os dados para uma única linha com horário do Brasil
-        timestamp_brasil = obter_horario_brasil()
-        # Remove timezone info para compatibilidade com MySQL
-        timestamp = timestamp_brasil.replace(tzinfo=None)
-        dados_linha = {'quando': timestamp}
+        # Obtém lock exclusivo no MySQL para evitar inserção duplicada
+        # quando múltiplos workers/processos tentam salvar ao mesmo tempo
+        cursor.execute("SELECT GET_LOCK('coleta_grafana', 60)")
+        lock_result = cursor.fetchone()[0]
+        if not lock_result:
+            print("  Não foi possível obter lock exclusivo, pulando inserção.")
+            cursor.close()
+            conexao.close()
+            return True
 
-        print(f"  Horário da coleta (Brasil): {timestamp_brasil.strftime('%d/%m/%Y %H:%M:%S')}")
+        try:
+            # Prepara os dados para uma única linha com horário do Brasil
+            timestamp_brasil = obter_horario_brasil()
+            # Remove timezone info para compatibilidade com MySQL
+            timestamp = timestamp_brasil.replace(tzinfo=None)
 
-        # Processa cada Prompt (Prompt 1, Prompt 2, Prompt 3)
-        for prompt_num in range(1, 4):
-            prompt_key = f'Prompt {prompt_num}'
-            prefixo = f'p{prompt_num}_'
+            print(f"  Horário da coleta (Brasil): {timestamp_brasil.strftime('%d/%m/%Y %H:%M:%S')}")
 
-            if prompt_key in dados_dict:
-                dados_prompt = dados_dict[prompt_key]
-                for campo_csv, sufixo in mapeamento_campos.items():
-                    campo_tabela = f'{prefixo}{sufixo}'
-                    valor = dados_prompt.get(campo_csv)
-                    dados_linha[campo_tabela] = valor
-            else:
-                # Se o Prompt não foi encontrado, preenche com None
-                for sufixo in mapeamento_campos.values():
-                    campo_tabela = f'{prefixo}{sufixo}'
-                    dados_linha[campo_tabela] = None
+            # Verifica se já existe um registro nos últimos 9 minutos para evitar duplicação
+            desde = timestamp - timedelta(minutes=9)
+            cursor.execute("SELECT COUNT(*) FROM grafana WHERE quando >= %s", (desde,))
+            count = cursor.fetchone()[0]
+            if count > 0:
+                print("  Registro recente já existe no banco, evitando duplicação.")
+                return True
 
-        # Monta o SQL INSERT
-        colunas = ', '.join(dados_linha.keys())
-        placeholders = ', '.join(['%s'] * len(dados_linha))
-        sql = f"INSERT INTO grafana ({colunas}) VALUES ({placeholders})"
+            dados_linha = {'quando': timestamp}
 
-        # Executa o INSERT
-        cursor.execute(sql, list(dados_linha.values()))
-        conexao.commit()
+            # Processa cada Prompt (Prompt 1, Prompt 2, Prompt 3)
+            for prompt_num in range(1, 4):
+                prompt_key = f'Prompt {prompt_num}'
+                prefixo = f'p{prompt_num}_'
 
-        # Print resumo
-        print("  Dados salvos no banco de dados:")
-        for prompt_num in range(1, 4):
-            prompt_key = f'Prompt {prompt_num}'
-            if prompt_key in dados_dict:
-                cpu = dados_dict[prompt_key].get('CPU', 'N/A')
-                ram = dados_dict[prompt_key].get('RAM', 'N/A')
-                gpu = dados_dict[prompt_key].get('GPU', 'N/A')
-                hd = dados_dict[prompt_key].get('HD', 'N/A')
-                print(f"  ✓ {prompt_key}: CPU={cpu}% RAM={ram}% GPU={gpu}% HD={hd}%")
-            else:
-                print(f"  ✗ {prompt_key}: Sem dados")
+                if prompt_key in dados_dict:
+                    dados_prompt = dados_dict[prompt_key]
+                    for campo_csv, sufixo in mapeamento_campos.items():
+                        campo_tabela = f'{prefixo}{sufixo}'
+                        valor = dados_prompt.get(campo_csv)
+                        dados_linha[campo_tabela] = valor
+                else:
+                    # Se o Prompt não foi encontrado, preenche com None
+                    for sufixo in mapeamento_campos.values():
+                        campo_tabela = f'{prefixo}{sufixo}'
+                        dados_linha[campo_tabela] = None
 
-        cursor.close()
-        conexao.close()
-        return True
+            # Monta o SQL INSERT
+            colunas = ', '.join(dados_linha.keys())
+            placeholders = ', '.join(['%s'] * len(dados_linha))
+            sql = f"INSERT INTO grafana ({colunas}) VALUES ({placeholders})"
+
+            # Executa o INSERT
+            cursor.execute(sql, list(dados_linha.values()))
+            conexao.commit()
+
+            # Print resumo
+            print("  Dados salvos no banco de dados:")
+            for prompt_num in range(1, 4):
+                prompt_key = f'Prompt {prompt_num}'
+                if prompt_key in dados_dict:
+                    cpu = dados_dict[prompt_key].get('CPU', 'N/A')
+                    ram = dados_dict[prompt_key].get('RAM', 'N/A')
+                    gpu = dados_dict[prompt_key].get('GPU', 'N/A')
+                    hd = dados_dict[prompt_key].get('HD', 'N/A')
+                    print(f"  ✓ {prompt_key}: CPU={cpu}% RAM={ram}% GPU={gpu}% HD={hd}%")
+                else:
+                    print(f"  ✗ {prompt_key}: Sem dados")
+
+            return True
+
+        finally:
+            cursor.execute("SELECT RELEASE_LOCK('coleta_grafana')")
+            cursor.fetchone()
+            cursor.close()
+            conexao.close()
 
     except Error as e:
         print(f"  Erro ao salvar no banco de dados: {e}")

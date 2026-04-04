@@ -4,7 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="3d79be0b-5301-49f8-94e9-a9baadc38484" name="Changes" comment="Label informando que é atualização da tela">
+    <list default="true" id="3d79be0b-5301-49f8-94e9-a9baadc38484" name="Changes" comment="Alteração pós migração para VPS (ajuste excel) - 3">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -124,7 +124,39 @@
       <option name="project" value="LOCAL" />
       <updated>1770220968437</updated>
     </task>
-    <option name="localTasksCounter" value="8" />
+    <task id="LOCAL-00008" summary="Label informando que é atualização da tela">
+      <option name="closed" value="true" />
+      <created>1775246809097</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1775246809097</updated>
+    </task>
+    <task id="LOCAL-00009" summary="Alteração pós migração para VPS (ajuste excel)">
+      <option name="closed" value="true" />
+      <created>1775247108163</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1775247108163</updated>
+    </task>
+    <task id="LOCAL-00010" summary="Alteração pós migração para VPS (ajuste excel) - 2">
+      <option name="closed" value="true" />
+      <created>1775263477235</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1775263477235</updated>
+    </task>
+    <task id="LOCAL-00011" summary="Alteração pós migração para VPS (ajuste excel) - 3">
+      <option name="closed" value="true" />
+      <created>1775263878715</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1775263878715</updated>
+    </task>
+    <option name="localTasksCounter" value="12" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
@@ -132,7 +164,11 @@
     <MESSAGE value="Ajuste no horário da coleta para usar a zona de tempo de São Paulo" />
     <MESSAGE value="Exibir horario da ultima atualização da tela" />
     <MESSAGE value="Botão para planilha excel" />
+    <MESSAGE value="Alteração pós migração para VPS (rodar excel)" />
     <MESSAGE value="Label informando que é atualização da tela" />
-    <option name="LAST_COMMIT_MESSAGE" value="Label informando que é atualização da tela" />
+    <MESSAGE value="Alteração pós migração para VPS (ajuste excel)" />
+    <MESSAGE value="Alteração pós migração para VPS (ajuste excel) - 2" />
+    <MESSAGE value="Alteração pós migração para VPS (ajuste excel) - 3" />
+    <option name="LAST_COMMIT_MESSAGE" value="Alteração pós migração para VPS (ajuste excel) - 3" />
   </component>
 </project>
