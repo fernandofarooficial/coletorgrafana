@@ -3,6 +3,7 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.chrome.service import Service
 from datetime import datetime
 import csv
 import os
@@ -187,8 +188,15 @@ def extrair_dados_selenium():
         options.add_argument("--disable-blink-features=AutomationControlled")
         options.add_argument("--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")
 
+        chrome_path = os.environ.get('CHROME_PATH')
+        if chrome_path:
+            options.binary_location = chrome_path
+
+        chromedriver_path = os.environ.get('CHROMEDRIVER_PATH')
+        service = Service(executable_path=chromedriver_path) if chromedriver_path else Service()
+
         print("  Inicializando Chrome...")
-        driver = webdriver.Chrome(options=options)
+        driver = webdriver.Chrome(service=service, options=options)
         print("  Chrome inicializado com sucesso")
 
         print(f"  Acessando URL: {URL}")
